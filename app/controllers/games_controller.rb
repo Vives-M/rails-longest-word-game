@@ -1,3 +1,6 @@
+require 'open-uri'
+require 'json'
+
 class GamesController < ApplicationController
   def new
     @length = 10
@@ -5,14 +8,18 @@ class GamesController < ApplicationController
   end
 
   def score
-    if original_grid?
-      return @answer = "Yes, you used the correct letters 👍"
-    else
+    if english_word?(params[:word]) && original_grid?
+      return @answer = "Well done, this is an english word !"
+    elsif english_word?(params[:word]) && original_grid? === false
       return @answer = "Sorry but #{params[:word].upcase} can't be built out of #{params[:letters]}"
+    else
+      return @answer = "Sorry, this is not an english word..."
     end
-    raise
+
 
   end
+
+  private
 
   def original_grid?
     @original_grid = []
@@ -26,4 +33,13 @@ class GamesController < ApplicationController
         return true
       end
   end
+
+  def english_word?(word)
+    response = URI.parse("https://dictionary.lewagon.com/#{word}")
+    json = JSON.parse(response.read)
+    return json['found']
+  end
+
+
+
 end
